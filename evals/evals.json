@@ -1,0 +1,35 @@
+{
+  "skill_name": "oracle-ai-agent-studio",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to create a custom AI agent in Oracle Fusion that answers employee questions about our expense policies. Walk me through the steps.",
+      "expected_output": "Step-by-step guide covering: 1) Create a Document tool with expense policy PDFs, 2) Create an agent with appropriate prompt and topic, 3) Assemble into an Agent Team, 4) Test and publish. Should reference AI Agent Studio navigation path and include concrete configuration details.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "What's the difference between Oracle AI Agent Studio and OCI AI Database Private Agent Factory? Which one should I use for invoice processing in Fusion?",
+      "expected_output": "Clear distinction between the two products. Should recommend AI Agent Studio for Fusion-based invoice processing and explain the Payables Agent template or custom multi-agent workflow pattern. Should reference the oci-agent-factory.md for deeper comparison.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "How do I set up the HCM Skill Recommendation Agent to use generative AI instead of predictive AI?",
+      "expected_output": "Specific steps including: setting ORA_HRT_SKILL_SUGGESTIONS to 'Next Generation with Workflow Agents', stopping Synchronize Talent Data job, setting ORA_WLF_AI_COMPANY_INFO, running Create Summaries job (Full then Incremental), copying SKILL_RECOMMENDATION_AGENT template, publishing, and setting ORA_HRT_SKILL_SUGGESTIONS_AGENT_CODE.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I want to build a multi-agent workflow in Oracle AI Agent Studio where one agent triages customer requests, another handles returns, and a human approves refunds over $500. How?",
+      "expected_output": "Should describe: creating specialist agents for triage and returns, configuring a supervisor/workflow agent team, using the Agent node pattern for dynamic routing, implementing human-in-the-loop for the approval gate, and chaining the workflow steps. Should reference deterministic execution and workflow architecture patterns.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Can I use Claude as the LLM for my Oracle Fusion AI agents?",
+      "expected_output": "Confirms that Oracle AI Agent Studio supports Anthropic (Claude) as an LLM provider alongside OpenAI, Google, Meta, Cohere, and xAI. Should explain how to configure it in the LLM tab of the Agent Designer. Should mention checking OCI policies if the Provider list is empty.",
+      "files": []
+    }
+  ]
+}
