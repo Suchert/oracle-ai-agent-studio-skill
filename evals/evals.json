@@ -30,6 +30,48 @@
       "prompt": "Can I use Claude as the LLM for my Oracle Fusion AI agents?",
       "expected_output": "Confirms that Oracle AI Agent Studio supports Anthropic (Claude) as an LLM provider alongside OpenAI, Google, Meta, Cohere, and xAI. Should explain how to configure it in the LLM tab of the Agent Designer. Should mention checking OCI policies if the Provider list is empty.",
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "What is A2A in Oracle AI Agent Studio and how is it different from MCP?",
+      "expected_output": "Should explain A2A (Agent-to-Agent Protocol) as an open standard for cross-platform agent collaboration available from 25B. Should distinguish A2A (agent-to-agent task delegation, uses Agent Card at /.well-known/agent.json) from MCP (agent-to-tool/data integration). Should describe how to consume an external A2A agent (create Agent tool of type A2A) and how to expose a Fusion agent as an A2A server (publish the agent team). Should mention data sovereignty considerations for cross-boundary A2A calls.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "My newly published agent team is returning wrong answers in production. How do I roll it back?",
+      "expected_output": "Should describe: un-publishing the agent team to remove it from Fusion Service workflows, re-activating the prior version if available, removing the Action Type from Service Center Administration if the agent was linked to a Fusion Service workflow, and using Agent Tracing to investigate the root cause in a test environment before re-promoting.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "I'm worried about prompt injection attacks on my Oracle Fusion AI agent. What should I do?",
+      "expected_output": "Should explain what prompt injection is (user or retrieved content overriding agent instructions). Mitigations should include: writing system prompts that label retrieved content as data-only, keeping topic scope narrow, enabling Agent Tracing to detect unexpected tool calls, adding Human-in-the-Loop for write operations, and referencing security-considerations.md for full guidance.",
+      "files": ["references/security-considerations.md"]
+    },
+    {
+      "id": 9,
+      "prompt": "Is it safe to use OpenAI GPT-4o for an agent that queries employee salary and personal data in Oracle HCM?",
+      "expected_output": "Should strongly caution against sending PII/salary data to OpenAI without a signed DPA approved by the DPO. Should recommend Oracle OCI GenAI (Cohere) for data that stays within OCI. Should reference data-classification table in security-considerations.md. Should mention GDPR storage-limitation considerations and the need to verify endpoint geography.",
+      "files": ["references/security-considerations.md"]
+    },
+    {
+      "id": 10,
+      "prompt": "What cross-tenancy IAM policies do I need to set up when my Agent tool in Tenancy A calls an agent endpoint in Tenancy B?",
+      "expected_output": "Should provide the two required policy statements: Endorse in source tenancy (using 'use genai-agent-endpoints', not 'manage genai-agent-family') and Admit in target tenancy. Should mention the identity domain consideration for non-Default domains. Should warn against over-permissioning with 'manage' verb.",
+      "files": ["references/cross-tenancy-policies.md"]
+    },
+    {
+      "id": 11,
+      "prompt": "How do I monitor token usage and control costs for my Oracle Fusion AI agents?",
+      "expected_output": "Should describe: navigating to Performance Metrics in AI Agent Studio (available from 25B), reviewing token consumption per agent/provider/date range. Cost control: use OCI GenAI (Cohere) for high-volume simple queries, reserve OpenAI/Anthropic for complex tasks, set Summarization Prompts to constrain response length. Rate limit escalation: check OCI Limits console, submit a service limit increase request.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Where can I find the list of pre-built AI agent templates for Oracle Field Service and customer support?",
+      "expected_output": "Should list CX/Service agents from the catalog including Knowledge Search Agent, Service Request Agent, Field Service Agent, Case Summary Agent, and others. Should explain that they are configured through Service Center Administration and reference prebuilt-agents-catalog.md CX/Service section.",
+      "files": ["references/prebuilt-agents-catalog.md"]
     }
   ]
 }

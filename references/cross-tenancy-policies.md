@@ -23,13 +23,17 @@ Gather before writing policies:
 ```
 Define tenancy <target-tenancy> as <target-tenancy-ocid>
 
-Endorse dynamic-group <dynamic-group-name> to manage genai-agent-family in tenancy <target-tenancy>
+Endorse dynamic-group <dynamic-group-name> to use genai-agent-endpoints in tenancy <target-tenancy>
 ```
+
+> **Least-privilege note**: Use `use genai-agent-endpoints` (read + invoke) rather than
+> `manage genai-agent-family` (full CRUD + delete). Grant `manage` only when the source
+> service must create or update agent resources in the target tenancy.
 
 ### In the target tenancy (where the agent endpoint lives)
 
 ```
-Admit dynamic-group <dynamic-group-name> of tenancy <source-tenancy> to manage genai-agent-family in tenancy
+Admit dynamic-group <dynamic-group-name> of tenancy <source-tenancy> to use genai-agent-endpoints in tenancy
 ```
 
 ## Identity Domain Considerations
