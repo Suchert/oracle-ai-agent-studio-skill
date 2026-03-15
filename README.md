@@ -57,12 +57,13 @@ cp -r oracle-ai-agent-studio/ ~/.agents/skills/
 
 ```
 oracle-ai-agent-studio/
-├── SKILL.md                              # Main skill instructions (iteration 2)
+├── SKILL.md                              # Main skill instructions
 ├── README.md                             # This file
 ├── references/
 │   ├── prebuilt-agents-catalog.md        # 70+ pre-built agents by business function
 │   ├── access-requirements.md            # Roles, permissions, prerequisites
 │   ├── cross-tenancy-policies.md         # IAM policies for cross-tenancy agents
+│   ├── security-considerations.md        # Prompt injection, credentials, GDPR, IAM
 │   ├── oci-agent-factory.md              # Distinction: Fusion Studio vs OCI Factory
 │   ├── official-docs-links.md            # Links to Oracle documentation
 │   └── release-availability.md           # Feature-by-release matrix (25A/25B/25C/26A)

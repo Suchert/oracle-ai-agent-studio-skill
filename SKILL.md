@@ -277,13 +277,20 @@ regions. Data sent to third-party LLMs (OpenAI, Anthropic, etc.) traverses throu
 OCI's infrastructure to those providers' endpoints. Consider:
 
 - **Data residency requirements**: Verify which regions host the GenAI/Agentic AI
-  realm for your Fusion pod. See Oracle's FAQ "Where are the locations of the
-  OpenAI endpoints for AI agents in Fusion Applications?" on the Oracle Help Center
+  realm for your Fusion pod. Search Oracle Help Center for the exact title
+  **"Where are the locations of the OpenAI endpoints for AI agents in Fusion
+  Applications?"** (use quotes for a precise match) or see
+  `references/official-docs-links.md` for the Help Center link.
 - **OCI GenAI (Cohere)**: Hosted within OCI regions — data stays in Oracle's cloud
 - **Third-party providers**: Data is sent to external endpoints (OpenAI US, Anthropic
-  US/EU, etc.) — review your organization's data sovereignty policies
+  US/EU, etc.) — review your organisation's data sovereignty policies.
+  **Never send PII, salary, medical, or other regulated data to a third-party LLM
+  provider without a signed Data Processing Agreement (DPA) approved by your DPO.**
 - **A2A and MCP calls**: External system integrations may route data outside
   your primary region — validate with your security and compliance team
+
+For comprehensive data-classification guidance and GDPR considerations, read
+`references/security-considerations.md`.
 
 ---
 
@@ -358,8 +365,9 @@ systems without custom API development.
 
 To add an MCP tool:
 1. Create a new tool of type MCP in the Tools tab
-2. Provide the MCP server URL
-3. Configure authentication if required
+2. Provide the MCP server URL (HTTPS only)
+3. Configure authentication (do not leave unauthenticated; store credentials
+   in OCI Vault or the Fusion Credentials tab — not in the tool description)
 4. The agent can now discover and use tools exposed by the MCP server
 
 This is particularly powerful for connecting Fusion agents to:
@@ -367,6 +375,52 @@ This is particularly powerful for connecting Fusion agents to:
 - Development tools and code repositories
 - Third-party SaaS applications
 - Custom internal services
+
+> **Security**: Validate that every MCP server you connect to is under your
+> organisation's control or from a trusted vendor. Agents execute whatever
+> tools the MCP server exposes. See `references/security-considerations.md`.
+
+---
+
+## A2A Integration (Agent-to-Agent Protocol)
+
+Available from **25B (Oct 2025)**. A2A is an open protocol that allows agents
+built on different platforms to collaborate across system boundaries — for example,
+a Fusion agent delegating a sub-task to an agent running on a partner's platform.
+
+### Key Concepts
+
+- **A2A Client**: The initiating agent that delegates tasks to remote agents
+- **A2A Server**: The remote agent that receives and executes delegated tasks
+- **Agent Card**: A JSON descriptor (served at `/.well-known/agent.json`) that
+  advertises an agent's capabilities, supported skills, and endpoint URL
+
+### How to Use A2A in AI Agent Studio
+
+1. **Consuming an external A2A agent** (your Fusion agent as A2A Client):
+   - Create an Agent tool of type **A2A**
+   - Provide the remote agent's base URL; Studio fetches the Agent Card automatically
+   - Attach the tool to your agent as you would any other tool type
+
+2. **Exposing a Fusion agent as an A2A Server**:
+   - Publish the agent team; the platform automatically generates an Agent Card
+     at the agent endpoint's well-known URL
+   - External A2A clients can then discover and invoke your agent
+
+### A2A vs. MCP
+
+| Aspect | A2A | MCP |
+|--------|-----|-----|
+| Purpose | Agent-to-agent task delegation | Agent-to-tool/data integration |
+| Counter-party | Another AI agent (LLM-based) | A server exposing tools or data |
+| Discovery | Agent Card (`/.well-known/agent.json`) | MCP server manifest |
+| Typical use | Cross-platform multi-agent workflows | External databases, SaaS APIs |
+
+### Data Sovereignty Note
+
+A2A calls may route data outside your primary OCI region or tenancy boundary.
+Validate with your security and compliance team before enabling cross-tenancy
+or cross-region A2A integrations that involve personal or regulated data.
 
 ---
 
@@ -399,10 +453,50 @@ of Oracle Fusion Applications:
 - No need to reconfigure security settings or sign new agreements
 - Data access is scoped to the user's permissions
 - Audit trails capture all agent interactions
-- Cross-tenancy agent tools require explicit IAM policies
+- Cross-tenancy agent tools require explicit IAM policies using least-privilege
+  verbs (`use genai-agent-endpoints`, not `manage genai-agent-family`)
 
-For cross-tenancy Agent tool configurations (when agent endpoints are in a
-different tenancy), read `references/cross-tenancy-policies.md`.
+**What Fusion security does NOT cover automatically** (your responsibility):
+- Prompt injection mitigations
+- Credential security for external REST/MCP endpoints
+- Data sovereignty when using third-party LLMs with PII or regulated data
+- Audit log retention and GDPR compliance
+- Input validation for agent write operations
+
+For comprehensive security guidance including prompt injection, credential
+management, data classification, and compliance considerations, read
+`references/security-considerations.md`.
+
+For cross-tenancy Agent tool configurations, read `references/cross-tenancy-policies.md`.
+
+---
+
+## Token Usage and Quota Management
+
+Available from **25B**. Monitor and control LLM token consumption to manage costs
+and avoid hitting service limits.
+
+### Viewing Token Metrics
+1. In AI Agent Studio, navigate to the **Performance Metrics** view
+2. Filter by agent team, date range, and LLM provider
+3. Review token consumption per interaction, per agent, and per provider
+
+### Cost Control Practices
+- Set a **Summarization Prompt** to constrain response length rather than
+  relying on the LLM to decide verbosity
+- Prefer Oracle OCI GenAI (Cohere) for high-volume, simple queries — it is
+  included in the Fusion subscription without per-token cost to the tenant
+- Use third-party LLMs (OpenAI, Anthropic) selectively for complex reasoning
+  tasks where their quality advantage justifies the cost
+- Review token metrics after the first week of production use and adjust
+  the LLM provider or prompt verbosity as needed
+
+### Rate Limits
+Rate limits for OCI Generative AI Agents depend on your OCI tenancy service
+limits. If agents return errors during peak load:
+1. Check OCI Console > Limits, Quotas and Usage > Generative AI
+2. Submit a service limit increase request if needed
+3. As a temporary measure, add retry logic in the calling application
 
 ---
 
@@ -448,7 +542,37 @@ New skills added to the library require this job to be processed.
 4. Test with different LLM providers if the issue is model-specific
 5. Check that guardrails in instructions are clear and unambiguous
 
+### Rollback After a Failed or Degraded Deployment
+
+If a newly published agent team causes regressions or unexpected behaviour in
+production:
+
+1. **Un-publish the agent team** in AI Agent Studio (set status back to Draft).
+   This removes it from the Fusion Service workflow immediately.
+2. **Re-activate the previous version**: If you previously copied a template
+   and kept the original, re-publish the prior version to restore service.
+   If not, restore from your last-known-good export (see next point).
+3. **Export agent configurations** before any significant change:
+   - Use the AI Agent Studio UI to note the exact prompt, topic instructions,
+     and tool settings of the stable version (Oracle does not yet provide a
+     one-click export/import mechanism — document manually or via screenshot).
+4. **Remove from Fusion Service workflows**: If the agent was linked via an
+   Action Type, navigate to **Service Center Administration > Action Types**
+   and disable or delete the action type to stop it being invoked.
+5. **Root-cause investigation**: After rollback, use Agent Tracing to replay
+   the failing interactions against the new agent in a test environment before
+   re-promoting to production.
+
+### A2A Tool not Discovering Remote Agent
+
+1. Verify the remote agent's base URL is reachable from your OCI region
+2. Check that the Agent Card (`/.well-known/agent.json`) is accessible and valid JSON
+3. Confirm cross-tenancy IAM policies are in place if the target agent is in
+   a different OCI tenancy (see `references/cross-tenancy-policies.md`)
+4. Review Agent Tracing for connection errors or JSON parse failures
+
 ---
+
 
 ## Examples
 
@@ -523,6 +647,7 @@ Deploy the pre-built Skill Recommendation Agent with generative AI:
 
 - Oracle AI Agent Studio documentation: `references/official-docs-links.md`
 - Pre-built agents catalog by business function: `references/prebuilt-agents-catalog.md`
+- Security considerations (prompt injection, credentials, GDPR, IAM): `references/security-considerations.md`
 - OCI AI Database Private Agent Factory (separate product): `references/oci-agent-factory.md`
 - Cross-tenancy IAM policies: `references/cross-tenancy-policies.md`
 - Oracle AI Agent Studio training and certification: https://mylearn.oracle.com/ou/learning-path/oracle-fusion-ai-agent-studio-foundations-associate/151552

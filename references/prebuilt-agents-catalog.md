@@ -118,8 +118,20 @@ All templates can be copied and customized.
 
 ## CX / Service
 
-Service-specific agents are typically configured through Service Center Administration.
-See the main SKILL.md for integration instructions.
+| Agent | Description |
+|-------|-------------|
+| Knowledge Search Agent | Searches the Oracle Knowledge Base and returns ranked articles to assist agents and customers |
+| Service Request Agent | Creates, updates, and summarizes service requests; surfaces relevant knowledge articles |
+| Field Service Agent | Assists field technicians with work order details, parts availability, and step-by-step repair guidance |
+| Case Summary Agent | Generates concise case summaries for handover between agents or shifts |
+| Customer Sentiment Analyzer | Analyzes interaction history and flags at-risk customers based on sentiment trends |
+| Chat Deflection Agent | Handles common customer queries via self-service before escalating to a human agent |
+| Warranty and Entitlement Agent | Checks coverage, validates entitlement, and explains warranty terms |
+| Returns and Refunds Agent | Guides customers through return eligibility, status checks, and refund processing |
+
+Service-specific agents are configured through Service Center Administration.
+For integration steps (creating action types, adding to workflows), see the
+*Integrating Agents into Fusion Workflows* section of the main SKILL.md.
 
 ---
 
